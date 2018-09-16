@@ -7,6 +7,9 @@ from matplotlib import pyplot
 N=1000 #number of units
 s=10 #number of traces
 T=20 # total timesteps
+perturbation_cue = 0 # number of units to change in cue
+retrival_is_deterministic = False
+sig = lambda x: 1/(1+numpy.exp(-x))
 
 #%% Initialization
 # generate random activity trace
@@ -21,12 +24,19 @@ for i in range(N):
 #%% Retrival
 s_cue = numpy.random.choice(s)
 x_curr = x[:,s_cue]
+i_flip = numpy.random.choice(N,perturbation_cue,replace=False)
+x_curr[i_flip] = 1 - x_curr[i_flip]
 x_bar = []
 for t in range(T):
     x_bar.append(x_curr)
     order = numpy.random.permutation(N)
     for i in order:
-        x_curr[i] = numpy.dot(M[i],x_curr)>0
+        I_syn = numpy.dot(M[i],x_curr)
+        if retrival_is_deterministic:   
+            fire = I_syn>0
+        else:
+            fire = sig(I_syn) > numpy.random.rand()
+        x_curr[i] = fire
     
 x_bar = numpy.array(x_bar)
 
