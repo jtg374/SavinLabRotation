@@ -4,7 +4,7 @@ from matplotlib import pyplot
 
 
 #%% Parameters 
-N=1000 #number of units
+N=100 #number of units
 s=10 #number of traces
 T=20 # total timesteps
 perturbation_cue = 0 # number of units to change in cue
@@ -26,10 +26,9 @@ s_cue = 0 # numpy.random.choice(s)
 x_curr = x[:,s_cue].copy()
 i_flip = [0] # numpy.random.choice(N,perturbation_cue,replace=False)
 x_curr[i_flip] = 1 - x_curr[i_flip]
-print(x_curr[:10])
 x_bar = []
 for t in range(T):
-    x_bar.append(x_curr)
+    x_bar.append(x_curr.copy())
     order = numpy.random.permutation(N)
     for i in order:
         I_syn = numpy.dot(M[i],x_curr)
@@ -42,8 +41,8 @@ for t in range(T):
 x_bar = numpy.array(x_bar)
 
 #%% output result
-for i in i_flip:
-    pyplot.plot(x_bar[:,i])
+for ii,i in enumerate(i_flip):
+    pyplot.plot(x_bar[:,i]+ii)
 pyplot.xlabel('time')
 pyplot.ylabel('some units')
 pyplot.show()
