@@ -23,7 +23,7 @@ for i in range(N):
 
 #%% Energy
 s_cue = 0 # numpy.random.choice(s)
-x_curr = x[:,s_cue]
+x_curr = x[:,s_cue].copy()
 i_flip = range(N) # numpy.random.choice(N,perturbation_cue,replace=False)
 x_curr[i_flip] = 1 - x_curr[i_flip]
 Energy = -numpy.dot(numpy.dot(M,x_curr),x_curr)
