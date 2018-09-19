@@ -4,10 +4,10 @@ from matplotlib import pyplot
 
 
 #%% Parameters 
-N=1000 #number of units
-s=10 #number of traces
+N=20 #number of units
+s=5 #number of traces
 T=20 # total timesteps
-perturbation_cue = 0 # number of units to change in cue
+perturbation_cue = 3 # number of units to change in cue
 retrival_is_deterministic = False
 sig = lambda x: 1/(1+numpy.exp(-x))
 
@@ -23,12 +23,17 @@ for i in range(N):
 
 #%% Energy
 s_cue = 0 # numpy.random.choice(s)
-x_curr = x[:,s_cue]
-i_flip = range(N) # numpy.random.choice(N,perturbation_cue,replace=False)
+x_curr = x[:,s_cue].copy()
+i_flip = numpy.random.choice(N,perturbation_cue,replace=False)
+print(i_flip)
 x_curr[i_flip] = 1 - x_curr[i_flip]
+print(x_curr)
 Energy = -numpy.dot(numpy.dot(M,x_curr),x_curr)
 print(Energy)
-
+#%%
+bakeup = M 
+#%%
+numpy.array_equal(M,bakeup)
 #%% Retrival
 s_cue = 0 # numpy.random.choice(s)
 x_curr = x[:,s_cue]
