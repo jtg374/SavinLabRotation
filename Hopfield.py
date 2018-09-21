@@ -8,7 +8,7 @@ N=100 #number of units
 s=10 #number of traces
 T=20 # total timesteps
 perturbation_cue = 0 # number of units to change in cue
-retrival_is_deterministic = False
+retrival_is_deterministic = True
 sig = lambda x: 1/(1+numpy.exp(-x))
 
 #%% Initialization
@@ -24,7 +24,7 @@ for i in range(N):
 #%% Retrival
 s_cue = 0 # numpy.random.choice(s)
 x_curr = x[:,s_cue].copy()
-i_flip = [0] # numpy.random.choice(N,perturbation_cue,replace=False)
+i_flip =  numpy.random.choice(N,perturbation_cue,replace=False)
 x_curr[i_flip] = 1 - x_curr[i_flip]
 x_bar = []
 for t in range(T):
@@ -41,7 +41,7 @@ for t in range(T):
 x_bar = numpy.array(x_bar)
 
 #%% output result
-for ii,i in enumerate(i_flip):
+for ii,i in enumerate(range(10)):
     pyplot.plot(x_bar[:,i]+ii)
 pyplot.xlabel('time')
 pyplot.ylabel('some units')
