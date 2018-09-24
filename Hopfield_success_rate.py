@@ -5,7 +5,7 @@ from matplotlib import pyplot
 
 #%% Parameters 
 N=100 #number of units
-s=10 #number of traces
+s=15 #number of traces
 perturbation_cue = 0 # number of units to change in cue
 retrival_is_deterministic = True
 sig = lambda x: 1/(1+numpy.exp(-x))
@@ -31,7 +31,7 @@ for i_run in range(N_run):
     i_flip =  numpy.random.choice(N,perturbation_cue,replace=False)
     x_curr[i_flip] = 1 - x_curr[i_flip]
     # retrival, compare subsequent trace
-    x_last = x_curr.copy()
+    x_last = numpy.zeros_like(x_curr)
     t=0
     while (not numpy.array_equal(x_last,x_curr)) and t<100: # break if trace doesn't change
         x_last = x_curr.copy()
