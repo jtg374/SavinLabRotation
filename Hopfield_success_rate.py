@@ -33,7 +33,7 @@ for i_run in range(N_run):
     # retrival, compare subsequent trace
     x_last = x_curr.copy()
     t=0
-    while (not numpy.array_equal(x_last,x_curr)) or t<100: # break if trace doesn't change
+    while (not numpy.array_equal(x_last,x_curr)) and t<100: # break if trace doesn't change
         x_last = x_curr.copy()
         order = numpy.random.permutation(N)
         for i in order:
