@@ -9,7 +9,7 @@ tEE = 100
 tEI = 10
 tIE = 25
 tII = 10
-tO = 5
+tO = 1
 JEE = 100
 JEI = 100
 JIE = 100
@@ -29,14 +29,13 @@ def NDF(y,t):
     return [dEE,dEI,dIE,dII,diE]
 #%%
 y0 = [0,0,0,0,0]
-t = numpy.arange(1000)
-for JO in [-2,2,3,4,5,9,12]:
+t = numpy.arange(300)
+for JO in [-2e2,2e2,3e2,4e2,5e2,9e2,12e2]:
     y = odeint(NDF,y0,t)
     sEE,sEI,iE = y[:,0],y[:,1],y[:,4]
     E = (JEE*sEE-JEI*sEI+iE) 
     pyplot.plot(E) 
-    # E is not graded while sEE is, I dont understand
-
+pyplot.ylim((-.5,.5))
 #%%
 iE = y[:,4]
 pyplot.plot(iE)
