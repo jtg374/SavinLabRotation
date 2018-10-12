@@ -2,7 +2,7 @@
 import numpy
 from matplotlib import pyplot
 from scipy.integrate import odeint
-sig = lambda x: 1/(1+numpy.exp(-x))
+# sig = lambda x: 1/(1+numpy.exp(-x))
 
 #%% parameter
 tEE = 100
@@ -19,8 +19,8 @@ stim = lambda t:int(t>0 and t<=1)
 # main ode
 def NDF(y,t):
     sEE,sEI,sIE,sII,iE = y
-    E = sig(JEE*sEE-JEI*sEI+iE) 
-    I = sig(JIE*sIE-JII*sII)
+    E = (JEE*sEE-JEI*sEI+iE) 
+    I = (JIE*sIE-JII*sII)
     dEE = (-sEE + E)/tEE
     dIE = (-sIE + E)/tIE
     dEI = (-sEI + I)/tEI
@@ -28,13 +28,14 @@ def NDF(y,t):
     diE = (-iE  + JO*stim(t))/tO
     return [dEE,dEI,dIE,dII,diE]
 #%%
-y0 = [.5,.5,.5,.5,0]
+y0 = [0,0,0,0,0]
 t = numpy.arange(1000)
-for JO in [-200,200,2e3,2e4,2e5,2e9,2e12]:
+for JO in [-2,2,3,4,5,9,12]:
     y = odeint(NDF,y0,t)
     sEE,sEI,iE = y[:,0],y[:,1],y[:,4]
-    E = sig(JEE*sEE-JEI*sEI+iE) 
-    pyplot.plot(sEE)
+    E = (JEE*sEE-JEI*sEI+iE) 
+    pyplot.plot(E) 
+    # E is not graded while sEE is, I dont understand
 
 #%%
 iE = y[:,4]
