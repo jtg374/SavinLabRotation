@@ -17,7 +17,7 @@ JII = 100
 JO  = 50
 stim = lambda t:int(t>0 and t<=1)
 # main ode
-def NDF(t,y):
+def NDF(y,t):
     sEE,sEI,sIE,sII,iE = y
     E = sig(JEE*sEE-JEI*sEI+iE) 
     # stim here makes E less like integrator under long stim
@@ -32,7 +32,7 @@ def NDF(t,y):
 y0 = [.5,.5,.5,.5,0]
 t = numpy.arange(1000)
 for JO in [-200,200,2e3,2e4,2e5,2e9,2e12]:
-    y = odeint(NDF,y0,t,tfirst=True)
+    y = odeint(NDF,y0,t)
     sEE,sEI,sIE,sII,iE = y[:,0],y[:,1],y[:,2],y[:,3],y[:,4]
     E = sig(JEE*sEE-JEI*sEI+iE) 
     pyplot.plot(E)
