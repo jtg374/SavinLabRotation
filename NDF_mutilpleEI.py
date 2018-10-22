@@ -34,7 +34,7 @@ MEE[cov_>0] += cov_[cov_>0]*JEE
 #
 # stim = lambda t:int(t>0 and t<=1)
 # mainode
-def NDF(t,y):
+def NDF(y,t):
     sEE = y[0:N]
     sEI = y[N:N*2]
     sIE = y[N*2:N*3]
@@ -51,6 +51,8 @@ def NDF(t,y):
 J0 = 0.2
 E0 = x[:,0].copy()
 pyplot.bar(range(N),E0-0.5)
+pyplot.xlabel('index')
+pyplot.ylabel('cue - 0.5')
 I0 = numpy.zeros(N)
 sEE0 = 0.5 + J0 * E0 * tEE / tEE
 sEI0 = 0.5 + J0 * I0 * tEE / tEI
@@ -59,7 +61,7 @@ sII0 = 0.5 + J0 * I0 * tEE / tII
 y0 = numpy.concatenate((sEE0,sEI0,sIE0,sII0))
 t = numpy.arange(1000)
 #%% solve
-y = odeint(NDF,y0,t,tfirst=True)
+y = odeint(NDF,y0,t)
 # sEE = y[:,0:N]
 # sEI = y[:,N:N*2]
 # sIE = y[:,N*2:N*3]
@@ -71,6 +73,8 @@ sIEt = yt[N*2:N*3]
 sIIt = yt[N*3:N*4]
 Et = sig(MEE@sEEt-MEI@sEIt)
 pyplot.bar(range(N),(Et-0.5))
+pyplot.xlabel('index')
+pyplot.ylabel('final - 0.5')
     
 
 
