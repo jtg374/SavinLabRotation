@@ -44,10 +44,10 @@ def NDF(y,t):
     E = sig(MEE@sEE-MEI@sEI) 
     I = sig(MIE@sIE-MII@sII)
     dEE = (-sEE + E)/tEE
-    dIE = (-sIE + E)/tIE
     dEI = (-sEI + I)/tEI
+    dIE = (-sIE + E)/tIE
     dII = (-sII + I)/tII
-    return numpy.concatenate((dEE,dIE,dEI,dII))
+    return numpy.concatenate((dEE,dEI,dIE,dII))
 
 #%% initial values
 J0 = 0.2
