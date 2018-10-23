@@ -6,8 +6,9 @@ sig = lambda x: 1/(1+numpy.exp(-x))
 
 #%% parameter
 # Hopfield
-N=100 #number of units
-s=5 #number of traces
+N=1 #number of units
+s=1 #number of traces
+nPerturb = 0 # number of units fliped in cue
 # NDF
 tEE = 100
 tEI = 10
@@ -27,7 +28,8 @@ MII = JII*numpy.eye(N)
 x = numpy.random.randint(0,2,(N,s))
 temp = x*2-1
 cov_ = temp @ temp.T - s*numpy.eye(N)
-MEE[cov_>0] += cov_[cov_>0]*JEE
+# MEE += cov_*JEE
+# MEE[cov_>0] += cov_[cov_>0]*JEE
 # MEI[cov_<0] -= cov_[cov_<0]*JEI
 # MIE[cov_<0] -= cov_[cov_<0]*JIE
 # MII[cov_>0] += cov_[cov_>0]*JII
@@ -49,11 +51,14 @@ def NDF(y,t):
 
 #%% initial values
 J0 = 0.2
-E0 = x[:,0].copy()
-pyplot.bar(range(N),E0-0.5)
+E0 = x[:,0]-0.5
+E0[:nPerturb] = -E0[:nPerturb]
+pyplot.bar(range(N),x[:,0]-0.5,label='original')
+pyplot.bar(range(N),E0,label='altered')
 pyplot.xlabel('index')
-pyplot.ylabel('cue - 0.5')
-I0 = numpy.zeros(N)
+pyplot.ylabel('cue')
+pyplot.legend()
+I0 = E0
 sEE0 = 0.5 + J0 * E0 * tEE / tEE
 sEI0 = 0.5 + J0 * I0 * tEE / tEI
 sIE0 = 0.5 + J0 * E0 * tEE / tIE
@@ -75,6 +80,11 @@ Et = sig(MEE@sEEt-MEI@sEIt)
 pyplot.bar(range(N),(Et-0.5))
 pyplot.xlabel('index')
 pyplot.ylabel('final - 0.5')
+#%%
+sEEc1 = y[:,3]
+pyplot.plot(sEEc1)
+pyplot.xlabel('time')
+pyplot.ylabel('sEE[3]')
     
 
 
