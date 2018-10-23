@@ -6,9 +6,9 @@ sig = lambda x: 1/(1+numpy.exp(-x))
 
 #%% parameter
 # Hopfield
-N=1 #number of units
+N=20 #number of units
 s=1 #number of traces
-nPerturb = 0 # number of units fliped in cue
+nPerturb = 2 # number of units fliped in cue
 # NDF
 tEE = 100
 tEI = 10
@@ -59,10 +59,10 @@ pyplot.xlabel('index')
 pyplot.ylabel('cue')
 pyplot.legend()
 I0 = E0
-sEE0 = 0.5 + J0 * E0 * tEE / tEE
-sEI0 = 0.5 + J0 * I0 * tEE / tEI
-sIE0 = 0.5 + J0 * E0 * tEE / tIE
-sII0 = 0.5 + J0 * I0 * tEE / tII
+sEE0 = 0.5 + J0 * E0 / tEE
+sEI0 = 0.5 + J0 * I0 / tEI
+sIE0 = 0.5 + J0 * E0 / tIE
+sII0 = 0.5 + J0 * I0 / tII
 y0 = numpy.concatenate((sEE0,sEI0,sIE0,sII0))
 t = numpy.arange(1000)
 #%% solve
@@ -85,6 +85,7 @@ sEEc1 = y[:,3]
 pyplot.plot(sEEc1)
 pyplot.xlabel('time')
 pyplot.ylabel('sEE[3]')
+sEEc1[0]
     
 
 
