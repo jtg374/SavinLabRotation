@@ -80,7 +80,7 @@ Et = sig(MEE@sEEt-MEI@sEIt)
 pyplot.bar(range(N),(Et-0.5))
 pyplot.xlabel('index')
 pyplot.ylabel('final - 0.5')
-error = Et - x[:,1]
+error = Et - x[:,0]
 print(numpy.where(error!=0))
 print(error[error!=0])
 #%%
