@@ -15,13 +15,14 @@ tEI = 10
 tIE = 25
 tII = 10
 tO = 5
-JEE = 100
+J = 100
+JEE = J
 MEE = JEE*numpy.eye(N)
-JEI = 100
+JEI = J
 MEI = JEI*numpy.eye(N)
-JIE = 100
+JIE = J
 MIE = JIE*numpy.eye(N)
-JII = 100
+JII = J
 MII = JII*numpy.eye(N)
 # JO  = 1e9
 # Hopfield
@@ -53,12 +54,12 @@ def NDF(y,t):
 J0 = 0.2
 E0 = x[:,0]-0.5
 E0[:nPerturb] = -E0[:nPerturb]
-pyplot.bar(range(N),x[:,0]-0.5,label='original')
 pyplot.bar(range(N),E0,label='altered')
+pyplot.bar(range(N),x[:,0]-0.5,label='original')
 pyplot.xlabel('index')
 pyplot.ylabel('cue')
 pyplot.legend()
-I0 = E0
+I0 = numpy.zeros(N)
 sEE0 = 0.5 + J0 * E0 / tEE
 sEI0 = 0.5 + J0 * I0 / tEI
 sIE0 = 0.5 + J0 * E0 / tIE
