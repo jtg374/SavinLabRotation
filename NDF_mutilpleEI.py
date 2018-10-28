@@ -28,7 +28,7 @@ MII = JII*numpy.eye(N)
 # Hopfield
 x = numpy.random.randint(0,2,(N,s))
 temp = x*2-1
-cov_ = temp @ temp.T - s*numpy.eye(N) # correlation synapse
+cov_ = temp @ temp.T/s - numpy.eye(N) # correlation synapse
 MEE += cov_*JEE
 # MEE[cov_>0] += cov_[cov_>0]*JEE
 # MEI[cov_<0] -= cov_[cov_<0]*JEI
