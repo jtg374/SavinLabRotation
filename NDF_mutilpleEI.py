@@ -29,29 +29,16 @@ MII = JII*numpy.eye(N)
 x = numpy.random.randint(0,2,(N,s))
 temp = x*2-1
 cov_ = temp @ temp.T/s - numpy.eye(N) # correlation synapse
-MEE += cov_*JEE
-# MEE[cov_>0] += cov_[cov_>0]*JEE
-# MEI[cov_<0] -= cov_[cov_<0]*JEI
+# MEE += cov_*JEE
+MEE[cov_>0] += cov_[cov_>0]*JEE
+MEI[cov_<0] -= cov_[cov_<0]*JEI
 # MIE[cov_<0] -= cov_[cov_<0]*JIE
 # MII[cov_>0] += cov_[cov_>0]*JII
 #
 # stim = lambda t:int(t>0 and t<=1)
-# mainode
-def NDF(y,t):
-    sEE = y[0:N]
-    sEI = y[N:N*2]
-    sIE = y[N*2:N*3]
-    sII = y[N*3:N*4]
-    E = sig(MEE@sEE-MEI@sEI) 
-    I = sig(MIE@sIE-MII@sII)
-    dEE = (-sEE + E)/tEE
-    dEI = (-sEI + I)/tEI
-    dIE = (-sIE + E)/tIE
-    dII = (-sII + I)/tII
-    return numpy.concatenate((dEE,dEI,dIE,dII))
 
-#%% initial values
-J0 = 0.2
+#%% initial values (initial value methods)
+J0 = 200
 E0 = x[:,0]-0.5
 E0[:nPerturb] = -E0[:nPerturb]
 pyplot.bar(range(N),E0,label='altered')
@@ -66,7 +53,21 @@ sIE0 = 0.5 + J0 * E0 / tIE
 sII0 = 0.5 + J0 * I0 / tII
 y0 = numpy.concatenate((sEE0,sEI0,sIE0,sII0))
 t = numpy.arange(1000)
-#%% solve
+#%% solve (initial value methods)
+# mainode
+def NDF(y,t):
+    sEE = y[0:N]
+    sEI = y[N:N*2]
+    sIE = y[N*2:N*3]
+    sII = y[N*3:N*4]
+    E = sig(MEE@sEE-MEI@sEI) 
+    I = sig(MIE@sIE-MII@sII)
+    dEE = (-sEE + E)/tEE
+    dEI = (-sEI + I)/tEI
+    dIE = (-sIE + E)/tIE
+    dII = (-sII + I)/tII
+    return numpy.concatenate((dEE,dEI,dIE,dII))
+
 y = odeint(NDF,y0,t)
 # sEE = y[:,0:N]
 # sEI = y[:,N:N*2]
@@ -90,6 +91,9 @@ pyplot.plot(sEEc1)
 pyplot.xlabel('time')
 pyplot.ylabel('sEE[3]')
 sEEc1[0]
-    
+
+#%%
+pyplot.imshow(MEE)
+pyplot.colorbar()    
 
 
