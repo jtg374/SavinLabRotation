@@ -24,7 +24,7 @@ JIE = J
 MIE = JIE*numpy.eye(N)
 JII = J
 MII = JII*numpy.eye(N)
-# JO  = 1e9
+JO  = 1e9 # external stim strength
 # Hopfield
 x = numpy.random.randint(0,2,(N,s))
 temp = x*2-1
@@ -36,6 +36,40 @@ MEI[cov_<0] -= cov_[cov_<0]*JEI
 # MII[cov_>0] += cov_[cov_>0]*JII
 #
 # stim = lambda t:int(t>0 and t<=1)
+
+#%% initial values (external stim methods)
+J0 = 200
+E0 = x[:,0]-0.5
+E0[:nPerturb] = -E0[:nPerturb]
+pyplot.bar(range(N),E0,label='altered')
+pyplot.bar(range(N),x[:,0]-0.5,label='original')
+pyplot.xlabel('index')
+pyplot.ylabel('cue')
+pyplot.legend()
+I0 = numpy.zeros(N)
+sEE0 = 0.5 + J0 * E0 / tEE
+sEI0 = 0.5 + J0 * I0 / tEI
+sIE0 = 0.5 + J0 * E0 / tIE
+sII0 = 0.5 + J0 * I0 / tII
+y0 = numpy.concatenate((sEE0,sEI0,sIE0,sII0))
+t = numpy.arange(1000)
+#%% mainode (external stim methods)
+def NDF(y,t):
+    sEE = y[0:N]
+    sEI = y[N:N*2]
+    sIE = y[N*2:N*3]
+    sII = y[N*3:N*4]
+    iE  = y[N*4:N*5]
+    E = sig(MEE@sEE-MEI@sEI+JO*iE) 
+    I = sig(MIE@sIE-MII@sII)
+    dEE = (-sEE + E)/tEE
+    dEI = (-sEI + I)/tEI
+    dIE = (-sIE + E)/tIE
+    dII = (-sII + I)/tII
+    diE = ( -iE + stim(t))/tO
+    return numpy.concatenate((dEE,dEI,dIE,dII,diE))
+
+
 
 #%% initial values (initial value methods)
 J0 = 200
@@ -53,8 +87,7 @@ sIE0 = 0.5 + J0 * E0 / tIE
 sII0 = 0.5 + J0 * I0 / tII
 y0 = numpy.concatenate((sEE0,sEI0,sIE0,sII0))
 t = numpy.arange(1000)
-#%% solve (initial value methods)
-# mainode
+#%% mainode (initial value methods)
 def NDF(y,t):
     sEE = y[0:N]
     sEI = y[N:N*2]
@@ -68,6 +101,7 @@ def NDF(y,t):
     dII = (-sII + I)/tII
     return numpy.concatenate((dEE,dEI,dIE,dII))
 
+#%% solve
 y = odeint(NDF,y0,t)
 # sEE = y[:,0:N]
 # sEI = y[:,N:N*2]
