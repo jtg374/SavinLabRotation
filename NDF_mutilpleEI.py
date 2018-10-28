@@ -6,18 +6,18 @@ sig = lambda x: 1/(1+numpy.exp(-x))
 
 #%% parameter
 # Hopfield
-N=20 #number of units
-s=1 #number of traces
+N=100 #number of units
+s=5 #number of traces
 nPerturb = 2 # number of units fliped in cue
 # NDF
-tEE = 100
-tEI = 10
-tIE = 25
-tII = 10
-tO = 5
-J = 100
+tEE = 100 # time constant of EE synapses
+tEI = 10 # time constant of EI synapses
+tIE = 25 # time constant of IE synapses
+tII = 10 # time constant of II synapses
+tO = 5 # time constant of external input
+J = 100 # synaptic strength
 JEE = J
-MEE = JEE*numpy.eye(N)
+MEE = JEE*numpy.eye(N) # initate EE synapses
 JEI = J
 MEI = JEI*numpy.eye(N)
 JIE = J
@@ -28,8 +28,8 @@ MII = JII*numpy.eye(N)
 # Hopfield
 x = numpy.random.randint(0,2,(N,s))
 temp = x*2-1
-cov_ = temp @ temp.T - s*numpy.eye(N)
-# MEE += cov_*JEE
+cov_ = temp @ temp.T - s*numpy.eye(N) # correlation synapse
+MEE += cov_*JEE
 # MEE[cov_>0] += cov_[cov_>0]*JEE
 # MEI[cov_<0] -= cov_[cov_<0]*JEI
 # MIE[cov_<0] -= cov_[cov_<0]*JIE
