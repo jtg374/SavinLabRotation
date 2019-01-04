@@ -71,12 +71,6 @@ k_prior = 0.5	# von Mises concentration parameter
 k_noise = 10	# for cue distribution
 x_memory = np.random.vonmises(0,k_prior,(N,M)) # every column 
                                         # is a memory trace
-x_target = x_memory[:,0].copy()     # the first one is 
-                                    # what we want to recall
-x_0 = np.random.vonmises(0,k_prior,N) # random initial state
-x_noise = np.random.vonmises(0,k_noise,N)   # indepedent random
-                                # noise to corrupt the cue
-x_tilde = x_target + x_noise 
 W = np.zeros((N,N))
 for i in range(N):
     for j in range(i): # j<i, Wii = 0
@@ -86,6 +80,14 @@ for i in range(N):
 W_flatten = [W[i][j] for i in range(N) for j in range(i) ]
 sigma2_w = np.var(W_flatten)
 # plt.hist(W_flatten,50)
+#%% initial conditions
+kk=0
+x_target = x_memory[:,kk].copy()     # the kk'th one is 
+                                    # what we want to recall
+x_0 = np.random.vonmises(0,k_prior,N) # random initial state
+x_noise = np.random.vonmises(0,k_noise,N)   # indepedent random
+                                # noise to corrupt the cue
+x_tilde = x_target + x_noise 
 
 # x_fire = [[ ] for j in range(N)] # record firing phase
 
@@ -112,7 +114,16 @@ x_fire = sol.t_events
 print(sol.message)
 print(tNow)
 # print(len(xNow))
-#%% second round 
+#%% continue
+tf += 20*np.pi # end of simulation, unit in LFP phase
+sol = solve_ivp(mainode,(tNow,tf),xNow,events=event) # integrate
+                                # until the end
+t = np.append(t,sol.t); tNow = t[-1]         # record time
+x = np.append(x,sol.y); xNow = x[:,-1]       # state
+x_fire = sol.t_events
+print(sol.message)
+print(tNow)
+#%%
 # sol = solve_ivp(mainode,(tNow,tf),xNow,events=event)
 # print(len(sol.t_events))
 # t = np.append(t,sol.t)
