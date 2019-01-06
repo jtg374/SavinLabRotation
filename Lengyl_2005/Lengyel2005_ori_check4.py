@@ -130,8 +130,4 @@ def Lengyel2005FullTest(nIter=10,randSeed=(None,None,None)):
         np.save('xFinal'+now,recalled)
         np.save('xCue'+now,recalled)
 #%%
-memorys,cues,synapses,results = Lengyel2005FullTest()
-np.save('xMemoryList_1230',memorys)
-np.save('xCueList_1230',cues)
-np.save('WList_1230',synapses)
-np.save('xFinalList_1230',results)
+Lengyel2005FullTest()
