@@ -12,11 +12,12 @@ class param:
     M = 10	# number of memories
     k_prior = 0.5	# von Mises concentration parameter
                     # for prior distribution
-    k_noise = 10	# for cue distribution
+    V_cue = 1/128	# for cue distribution
+    V_noise = 1/128	# per cycle
     # k_synapse is determined by STDP, M and prior distribution
     tf = 320*np.pi # end of simulation, unit in LFP phase        
 #%%
-def Lengyel2005FullTest(nIter=10,randSeed=(None,None,None)):
+def Lengyel2005GrowingNoiseFullTest(nIter=10,randSeed=(None,None,None)):
     #%% Define STDP Rule and Phase Coupling Function
     # T_theta = 125 # ms, theta osicillation period
     A_STDP = param.A_STDP; s_STDP = param.s_STDP # parameters for STDP
@@ -46,6 +47,10 @@ def Lengyel2005FullTest(nIter=10,randSeed=(None,None,None)):
                                                 # Hjj is guarenteed
                                                 # to be 0 because
                                                 # Wjj is 0
+            D = V_cue + V_noise*(t/np.pi/2)
+            x_noise = np.random.vonmises(0,1/D,N)
+            x_tilde = x_target + x_noise
+            k_noise = 1/D
             dx_prior    = -k_prior * np.sin(x)
             dx_external = -k_noise * np.sin(x-x_tilde)
             dx_synapse  = np.sum(H,1)/sigma2_w # sum_j H_{ij}/sigma_w^2
@@ -95,7 +100,6 @@ def Lengyel2005FullTest(nIter=10,randSeed=(None,None,None)):
     #%% main
     N = param.N	# number of neurons
     M = param.M	# number of memories
-    cues = np.empty((N,M))
     recalled = np.empty((N,M))
     for mainIter in range(nIter):
         now = datetime.now().strftime("%m%d%H%M")
@@ -103,7 +107,8 @@ def Lengyel2005FullTest(nIter=10,randSeed=(None,None,None)):
         #%% initialize memory traces and synaptic weights
         k_prior = param.k_prior	# von Mises concentration parameter
                                 # for prior distribution
-        k_noise = param.k_noise	# for cue distribution
+        V_cue = param.V_cue	# for cue distribution
+        V_noise = param.V_noise	# for cue distribution
         x_memory = np.random.vonmises(0,k_prior,(N,M)) # every column 
                                                 # is a memory trace
         W = np.zeros((N,N))
@@ -120,14 +125,9 @@ def Lengyel2005FullTest(nIter=10,randSeed=(None,None,None)):
         for k in range(M):      # the kth memory trace is
             print('memory#',k)
             x_target = x_memory[:,k].copy()     # what we want to recall
-            x_noise = np.random.vonmises(0,k_noise,N)   # indepedent random
-                                            # noise to corrupt the cue
-            x_tilde = x_target + x_noise 
-            cues[:,k] = x_tilde
             x_0 = np.random.vonmises(0,k_prior,N) # initial condition
             xFinal = odesolve(t_span=(0,param.tf),x_0=x_0)
             recalled[:,k] = xFinal
         np.save('xFinal'+now,recalled)
-        np.save('xCue'+now,recalled)
 #%%
-Lengyel2005FullTest()
+Lengyel2005GrowingNoiseFullTest()
