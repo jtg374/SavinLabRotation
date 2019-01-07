@@ -119,8 +119,6 @@ def Lengyel2005GrowingNoiseFullTest(nIter=10,randSeed=(None,None,None)):
                     W[j,i] += omega(x_memory[j,k]-x_memory[i,k])
         W_flatten = [W[i][j] for i in range(N) for j in range(i) ]
         sigma2_w = np.var(W_flatten)
-        np.save('xMemory'+now,x_memory)
-        np.save('WSynapse'+now,W)
         #%% 
         for k in range(M):      # the kth memory trace is
             print('memory#',k)
@@ -128,6 +126,8 @@ def Lengyel2005GrowingNoiseFullTest(nIter=10,randSeed=(None,None,None)):
             x_0 = np.random.vonmises(0,k_prior,N) # initial condition
             xFinal = odesolve(t_span=(0,param.tf),x_0=x_0)
             recalled[:,k] = xFinal
+        np.save('xMemory'+now,x_memory)
+        np.save('WSynapse'+now,W)
         np.save('xFinal'+now,recalled)
 #%%
 Lengyel2005GrowingNoiseFullTest()
