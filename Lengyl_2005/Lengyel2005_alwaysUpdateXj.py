@@ -53,7 +53,7 @@ def mainode(t,x,N,W,sigma2_W,x_tilde,k_prior,k_cue):
 # Initial Condintion
 k = 0 # memory to recall
 xTarget = xMemory[:,k]
-x0 = np.random.vonmises(0,k_prior,N)
+x0 = xTarget.copy() # np.random.vonmises(0,k_prior,N)
 xNoise = np.random.vonmises(0,k_cue,N)
 x_tilde = xTarget + xNoise
 
@@ -71,7 +71,7 @@ kwargs = {
     'sigma2_W': sigma2_W,
     'x_tilde': x_tilde
 }
-sol = solve_ivp(lambda t,y: mainode(t,y,**kwargs),(0,tf),x0,events=events,t_eval=np.arange(0,tf,5))
+sol = solve_ivp(lambda t,y: mainode(t,y,**kwargs),(0,tf),x0,events=events)
 t   = sol.t; tNow = sol.t[-1]
 x_t = sol.y; xNow = sol.y[:,-1]
 t_fire = sol.t_events
@@ -79,13 +79,32 @@ x_fire = [np.mod(ts/T_theta,1)*2*pi for ts in t_fire]
 print(sol.message)
 
 #%%
+# show time course
+ax = plt.subplot(111,projection='polar')
+for xi_t,target in zip(x_t,xTarget):
+    color = hsv((target/pi/2)%1)
+    ax.plot(xi_t,t,color=color,alpha=0.2)
+ax.plot(2*pi*t/T_theta,t,color='white')
+ax.set_ylabel('time')
+
+#%%
 ## evaluate errors
-errors = xNow - xTarget
+errors = x_t - np.transpose(np.tile(xTarget,(len(t),1)))
 errors = np.mod(errors+pi,2*pi)-pi
-h=plt.hist(errors)
+h=plt.hist(errors[:,-1])
 plt.xlim((-pi,pi))
 plt.xlabel('error')
 plt.ylabel('counts')
+
+#%%
+# show time course of error
+from matplotlib.cm import hsv
+ax = plt.subplot(projection='polar')
+for dxi_t,target in zip(errors,xTarget):
+    color = hsv((target/pi/2)%1)
+    ax.plot(dxi_t,t,color=color,alpha=0.1)
+ax.set_ylabel('time')
+ax.set_rlabel_position(135)
 
 #%%
 # Continue Integration
