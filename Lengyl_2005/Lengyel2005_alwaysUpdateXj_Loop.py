@@ -69,7 +69,7 @@ for iIter in range(nIter):
     t_eval = np.arange(0,tf,dt)
     len_t = len(t_eval)
     cues = np.empty((N,M))
-    recalled = np.empty((len_t,N,M))
+    recalled = np.empty((N,len_t,M))
     t_fireList = []
     #%%
     ## Solve ODE
@@ -95,7 +95,7 @@ for iIter in range(nIter):
             'sigma2_W': sigma2_W,
             'x_tilde': x_tilde
         }
-        sol = solve_ivp(lambda t,y: mainode(t,y,**kwargs),(0,tf),x0,events=events)
+        sol = solve_ivp(lambda t,y: mainode(t,y,**kwargs),(0,tf),x0,events=events,t_eval=t_eval)
         t   = sol.t; tNow = sol.t[-1]
         x_t = sol.y; xNow = sol.y[:,-1]
         t_fire = sol.t_events
@@ -115,5 +115,5 @@ for iIter in range(nIter):
         xCues=cues,xRecalled=recalled,
         time=now,t_eval=t_eval)
     with open(filename+'_firing.data','wb') as f:
-        pickle.dump(results,t_fireList)
+        pickle.dump(t_fireList,f)
 
