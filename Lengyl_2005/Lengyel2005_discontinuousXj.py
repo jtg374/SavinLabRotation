@@ -99,6 +99,29 @@ for xi_t,target in zip(x_t,xTarget):
 ax.plot(2*pi*t/T_theta,t,color='white')
 ax.set_ylabel('time')
 
+#%% raster
+def raster(x_fire,inds):
+        nn = len(inds)
+        tf=0
+        fig,ax = plt.subplots()
+        for i in inds:
+                for te in x_fire[i]:
+                        ax.vlines(te,i,i+1,color='white')
+                if tf<te: tf=te
+        ax.set_ylim(0,nn)
+        ax.set_xlabel('time (ms)')
+        ax.set_ylabel('neuron #')
+        xticks = np.arange(0,tf+2*np.pi,2*np.pi)
+        ax.set_xticks(xticks)
+        ax.set_xticklabels(map(str,range(len(xticks))))
+        # fig.show()
+        return fig
+raster(t_fire,range(10))
+#%%
+inds = np.argsort(xTarget)
+x_fire_ordered = [t_fire[ind] for ind in inds]
+raster(x_fire_ordered,range(len(inds)))
+
 #%%
 ## evaluate errors
 errors = x_t - np.transpose(np.tile(xTarget,(len(t),1)))
