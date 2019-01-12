@@ -80,6 +80,8 @@ print(sol.message)
 
 #%%
 # show time course
+from matplotlib.cm import get_cmap
+hsv = get_cmap('hsv')
 ax = plt.subplot(111,projection='polar')
 for xi_t,target in zip(x_t,xTarget):
     color = hsv((target/pi/2)%1)
@@ -98,7 +100,6 @@ plt.ylabel('counts')
 
 #%%
 # show time course of error
-from matplotlib.cm import hsv
 ax = plt.subplot(projection='polar')
 for dxi_t,target in zip(errors,xTarget):
     color = hsv((target/pi/2)%1)
