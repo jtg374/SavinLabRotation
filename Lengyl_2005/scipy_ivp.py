@@ -196,7 +196,7 @@ def solve_with_event(fun, t_span,y0, method=RK45, t_eval=None,
     # above copied from scipy.integrate #
     
     funWithEvent = lambda t,y: fun(t,y,t_events_last)
-    solver = RK45(funWithEvent, t0, y0, tf, vectorized=vectorized, **options)
+    solver = method(funWithEvent, t0, y0, tf, vectorized=vectorized, **options)
 
     # below copied from scipy.integrate # Start integration
     status = None
@@ -235,7 +235,7 @@ def solve_with_event(fun, t_span,y0, method=RK45, t_eval=None,
                     # add lines
                     t_events_last[e]= te
                     funWithEvent = lambda t,y: fun(t,y,t_events_last)
-                    solver = RK45(funWithEvent, t, y, tf, vectorized=vectorized, **options)
+                    solver = method(funWithEvent, t, y, tf, vectorized=vectorized, **options)
     # below copied from scipy.integrate #
 
                 if terminate:
