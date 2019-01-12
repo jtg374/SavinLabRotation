@@ -66,7 +66,7 @@ xNoise = np.random.vonmises(0,k_cue,N)
 x_tilde = xTarget + xNoise
 
 # Define firing events
-events = [lambda t,x,j=j: sin((x[i] - 2*pi*t/T_theta)/2) for j in range(N)]
+events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
 # events[i] = 0 if and only if x[i] == 2*pi*t/T mod 2pi
 
 # Integration
