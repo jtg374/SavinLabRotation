@@ -12,8 +12,11 @@ nIter = 10
 N = 200 # number of neurons
 M = 10 # number of memorys, every trace will be attemped to recall
 T_theta = 125 # theta oscillation period in ms
-tf = 5*T_theta # integration time for each recall
+tf = 8*T_theta # integration time for each recall
 dt = 1 # timestep for saving results
+k_prior = 0.5 # concentration parameter for prior distribution
+k_cue0 = 16 # for initial cue distribution
+v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
 
 #%%
 # Main loop
@@ -33,8 +36,6 @@ for iIter in range(nIter):
     ## Create Memorys
     N = N # number of neurons
     M = M # number of memorys
-    k_prior = 0.5 # concentration parameter for prior distribution
-    k_cue = 10 # for cue distribution
     xMemory = np.random.vonmises(0,k_prior,(N,M))
     ## Create Synapses
     W = np.zeros((N,N))
@@ -47,12 +48,15 @@ for iIter in range(nIter):
 
     #%%
     ## Define ODE
-    def mainode(t,x,N,W,sigma2_W,x_tilde,k_prior,k_cue):
+    def mainode(t,x,N,W,sigma2_W,k_prior,k_cue0,v_noise,T_theta,xTarget):
         # Additional parameters
         # N: #neurons
         # W: Synpatic weight W[i,j] is from j to i
         # sigma2_W: variance of W
-        # x_tilde is the recall cue
+        # Generate cue
+        k_cue = 1/( 1/k_cue0 + v_noise*t/T_theta )
+        x_noise = np.random.vonmises(0,k_cue,N)
+        x_tilde = xTarget + x_noise
         # Calculate phase response H
         H = np.zeros(N)
         for i in range(N):
@@ -68,7 +72,6 @@ for iIter in range(nIter):
     ## Prepare space for saving results
     t_eval = np.arange(0,tf,dt)
     len_t = len(t_eval)
-    cues = np.empty((N,M))
     recalled = np.empty((N,len_t,M))
     t_fireList = []
     #%%
@@ -78,8 +81,6 @@ for iIter in range(nIter):
         # Initial Condintion
         xTarget = xMemory[:,k]
         x0 = xTarget.copy() # np.random.vonmises(0,k_prior,N)
-        xNoise = np.random.vonmises(0,k_cue,N)
-        x_tilde = xTarget + xNoise
 
         # Define firing events
         events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
@@ -91,9 +92,11 @@ for iIter in range(nIter):
             'N': N,
             'W': W,
             'k_prior': k_prior,
-            'k_cue': k_cue,
+            'k_cue0': k_cue0,
+            'v_noise': v_noise,
             'sigma2_W': sigma2_W,
-            'x_tilde': x_tilde
+            'T_theta': T_theta,
+            'xTarget': xTarget
         }
         sol = solve_ivp(lambda t,y: mainode(t,y,**kwargs),(0,tf),x0,events=events,t_eval=t_eval)
         t   = sol.t; tNow = sol.t[-1]
@@ -104,15 +107,13 @@ for iIter in range(nIter):
 
         #%% 
         # save result for current recall
-        cues[:,k]= x_tilde
         recalled[:,:,k] = x_t
         t_fireList += [t_fire]
     #%%
     # save all into file
     now = datetime.now()
     filename = 'Lengyel2005_alwaysUpdateXj_iter%02d'%(iIter)
-    np.savez(filename,xMemory=xMemory,W=W,
-        xCues=cues,xRecalled=recalled,
+    np.savez(filename,xMemory=xMemory,W=W,xRecalled=recalled,
         time=now,t_eval=t_eval)
     with open(filename+'_firing.data','wb') as f:
         pickle.dump(t_fireList,f)
