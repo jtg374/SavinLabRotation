@@ -119,7 +119,7 @@ tf += 20*np.pi # end of simulation, unit in LFP phase
 sol = solve_ivp(mainode,(tNow,tf),xNow,events=event) # integrate
                                 # until the end
 t = np.append(t,sol.t); tNow = t[-1]         # record time
-x = np.append(x,sol.y); xNow = x[:,-1]       # state
+x = np.append(x,sol.y,axis=1); xNow = x[:,-1]       # state
 x_fire = sol.t_events
 print(sol.message)
 print(tNow)
