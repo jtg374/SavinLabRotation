@@ -111,15 +111,16 @@ def raster(x_fire,inds):
         ax.set_ylim(0,nn)
         ax.set_xlabel('time (ms)')
         ax.set_ylabel('neuron #')
-        xticks = np.arange(0,tf+2*np.pi,2*np.pi)
-        ax.set_xticks(xticks)
-        ax.set_xticklabels(map(str,range(len(xticks))))
+        # xticks = np.arange(0,tf+2*np.pi,2*np.pi)
+        # ax.set_xticks(xticks)
+        # ax.set_xticklabels(map(str,range(len(xticks))))
         # fig.show()
         return fig
-raster(t_fire,range(10))
+# raster(t_fire,range(10))
 #%%
-inds = np.argsort(xTarget)
-x_fire_ordered = [t_fire[ind] for ind in inds]
+xTargetUnwrap = np.mod(xTarget,pi*2)
+inds = np.argsort(xTargetUnwrap)
+x_fire_ordered = [t_fire[ind][-3:] for ind in inds]
 raster(x_fire_ordered,range(len(inds)))
 
 #%%
