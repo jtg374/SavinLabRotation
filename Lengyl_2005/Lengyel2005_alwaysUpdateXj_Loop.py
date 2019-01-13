@@ -110,7 +110,7 @@ for iIter in range(nIter):
     #%%
     # save all into file
     now = datetime.now()
-    filename = 'Lengyel2005_alwaysUpdateXj_iter%02d'%(iIter)
+    filename = 'Lengyel2005_alwaysUpdateXj_Loop/'+'Lengyel2005_alwaysUpdateXj_iter%02d'%(iIter)
     np.savez(filename,xMemory=xMemory,W=W,
         xCues=cues,xRecalled=recalled,
         time=now,t_eval=t_eval)
