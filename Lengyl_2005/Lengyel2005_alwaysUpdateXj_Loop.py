@@ -77,7 +77,7 @@ for iIter in range(nIter):
         print('memory #',k+1,'/',M)
         # Initial Condintion
         xTarget = xMemory[:,k]
-        x0 = xTarget.copy() # np.random.vonmises(0,k_prior,N)
+        x0 = np.random.vonmises(0,k_prior,N)
         xNoise = np.random.vonmises(0,k_cue,N)
         x_tilde = xTarget + xNoise
 

@@ -79,7 +79,7 @@ for iIter in range(nIter):
     for k in range(M): # every memory trace will be attempted to recall
         print('memory #',k+1,'/',M)
         # Initial Condintion
-        xTarget = xMemory[:,k]
+        xTarget = np.random.vonmises(0,k_prior,N)
         x0 = xTarget.copy() # np.random.vonmises(0,k_prior,N)
 
         # Define firing events
