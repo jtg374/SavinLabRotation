@@ -12,7 +12,7 @@ nIter = 10
 N = 200 # number of neurons
 M = 10 # number of memorys, every trace will be attemped to recall
 T_theta = 125 # theta oscillation period in ms
-tf = 5*T_theta # integration time for each recall
+tf = 10*T_theta # integration time for each recall
 dt = 1 # timestep for saving results
 
 #%%
@@ -103,7 +103,7 @@ for iIter in range(nIter):
             'T_theta': T_theta
         }
         odeWaitingEvent = lambda t,y,t_events_last: mainode(t,y,t_lastFire=t_events_last,**kwargs)
-        sol = solve_with_event(odeWaitingEvent,(0,tf),x0,events=events)
+        sol = solve_with_event(odeWaitingEvent,(0,tf),x0,events=events,t_eval=t_eval)
         t   = sol.t; tNow = sol.t[-1]
         x_t = sol.y; xNow = sol.y[:,-1]
         t_fire = sol.t_events
