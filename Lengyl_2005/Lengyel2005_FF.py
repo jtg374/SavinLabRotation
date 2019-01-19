@@ -3,6 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from scipy.integrate import solve_ivp
+plt.style.use('ggplot')
+plt.style.use('seaborn-poster')
 
 #%% Define STDP Rule and Phase Coupling Function
 # T_theta = 125 # ms, theta osicillation period
@@ -155,3 +157,61 @@ print(x_bar[p]%(np.pi*2))
 x1 = np.random.vonmises(0,k_prior)
 x2 = x1 + 20*np.pi + 0.001
 print(np.mod(x2-x1, np.pi*2))
+#%%
+k_prior = .5
+kratios = np.logspace(-2,8,31,base=2)
+#
+NN = int(1e5)
+bias = np.zeros_like(kratios)
+# lvar = np.zeros_like(kratios)
+# ldsp = np.zeros_like(kratios)
+lstd = np.zeros_like(kratios)
+cvar = np.zeros_like(kratios)
+cdsp = np.zeros_like(kratios)
+cstd = np.zeros_like(kratios)
+#
+for ind,k in enumerate(kratios):
+    # print(ind)
+    x = np.random.vonmises(0,k_prior,NN)
+    noise = np.random.vonmises(0,k*k_prior,NN)
+    x_tilde = x + noise
+    Z = np.exp(1j*x_tilde) + 1/k
+    x_bar = np.angle(Z)
+    error = x_bar - x
+    error = np.mod(error+np.pi,np.pi*2)-np.pi
+    # h=plt.hist(error,100,(-np.pi,np.pi),color=cm.YlGn(ind/21),histtype='step')
+    bias[ind] = np.mean(error)
+    lstd[ind] = np.std(error)
+#     ldsp[ind] = lvar[ind] + bias[ind]**2
+    vR = np.exp(1j*error)
+    R = abs(np.mean(vR))
+    cvar[ind] = 1 - R
+    cdsp[ind] = cvar[ind] + 2*R*(np.sin(bias[ind]/2)**2)
+    cstd[ind] = np.sqrt(-2*np.log(R))
+#
+plt.figure()
+# plt.semilogx(kratios,lvar)
+# plt.semilogx(kratios,ldsp)
+plt.semilogx(kratios,lstd)
+plt.xlabel(r'$k_{cue}/k_{prior}$')
+plt.ylabel('linear SD of error')
+#
+plt.figure()
+# plt.semilogx(kratios,cvar)
+# plt.semilogx(kratios,cdsp)
+plt.semilogx(kratios,cstd)
+plt.xlabel(r'$k_{cue}/k_{prior}$')
+plt.ylabel('circular SD of error')
+
+#%%
+k = kratios[19]
+k_noise = k_prior*k
+x = np.random.vonmises(0,k_prior,NN)
+noise = np.random.vonmises(0,k*k_prior,NN)
+x_tilde = x + noise
+Z = np.exp(1j*x_tilde) + 1/k
+x_bar = np.angle(Z)
+error = x_bar - x
+error = np.mod(error+np.pi,np.pi*2)-np.pi
+print(np.var)
+#%%
