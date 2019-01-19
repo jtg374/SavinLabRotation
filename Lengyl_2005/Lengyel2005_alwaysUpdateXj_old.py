@@ -14,17 +14,18 @@ omega = lambda dx: A_STDP * exp(s_STDP*cos(dx)) * sin(dx)
 domega = lambda dx: 2*pi/T_theta*A_STDP*exp(s_STDP*cos(dx)) * (cos(dx) - s_STDP * sin(dx)**2 )
 
 #%%
+# PRC 
 du=np.pi/120 
 u = np.arange(-np.pi,np.pi,du) # a bunch of testing phase 
 uu=u.copy();uu[u<=0]+=2*np.pi # wrap into range (0,2pi]
 PRC = np.zeros_like(u)
-k_prior = 0.6 # confidence of prior (x=0)
+k_prior = 0.6/20 # confidence of prior (x=0)
 for w in [0.01,0.025, 0.05, 0.075]:
         for i,xj in enumerate(uu):
                 x=0 # postsynaptic start from 0 phase
-                t=xj # phase response integrate from presynaptic fire
+                t=xj*T_theta/pi/2 # phase response integrate from presynaptic fire
                 dt = 0.001*T_theta
-                while (dp(t+dt)-x)<2*np.pi: # fire when x == t mod 2pi
+                while (t+dt-x*T_theta/pi/2)<T_theta: # fire when x == t*2pi/T mod 2pi
                         dx = dt*(-k_prior*np.sin(x)+w*domega(x-xj))
                         x+=dx
                         t+=dt
