@@ -7,7 +7,7 @@ from scipy.integrate import solve_ivp
 ## Define STDP and Phase coupling function
 A_STDP = 0.03
 s_STDP = 4
-T_theta = 125 # theta oscillation period in ms
+T_theta = pi*2 # theta oscillation period in ms
 dp = lambda dt: dt*2*pi/T_theta # dt = xi - xj
 omega = lambda dx: A_STDP * exp(s_STDP*cos(dx)) * sin(dx)
 # derivative in respect to xi
@@ -71,9 +71,9 @@ def mainode(t,x,N,W,sigma2_W,x_tilde,k_prior,k_cue):
 # Initial Condintion
 k = 0 # memory to recall
 xTarget = xMemory[:,k]
-x0 = xTarget.copy() # np.random.vonmises(0,k_prior,N)
 xNoise = np.random.vonmises(0,k_cue,N)
 x_tilde = xTarget + xNoise
+x0 = np.random.vonmises(0,k_prior,N)
 
 # Define firing events
 events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
