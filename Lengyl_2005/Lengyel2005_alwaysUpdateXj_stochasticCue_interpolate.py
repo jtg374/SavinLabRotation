@@ -4,7 +4,7 @@ from numpy import pi,exp,sin,cos
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
-#%% Define STDP and Phase coupling function
+#%% Parameters and STDP
 ## Define STDP and Phase coupling function
 A_STDP = 0.03
 s_STDP = 4
@@ -13,14 +13,14 @@ dp = lambda dt: dt*2*pi/T_theta # dt = xi - xj
 omega = lambda dx: A_STDP * exp(s_STDP*cos(dx)) * sin(dx)
 # derivative in respect to xi
 domega = lambda dx: 2*pi/T_theta*A_STDP*exp(s_STDP*cos(dx)) * (cos(dx) - s_STDP * sin(dx)**2 )
-
-#%% Create Memorys
-## Create Memorys
+# other parameters
 N = 200 # number of neurons
 M = 10 # number of memorys
 k_prior = 0.5 # concentration parameter for prior distribution
 k_cue0 = 16 # for initial cue distribution
-v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
+v_noise = 1/2 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
+#%% Create Memorys and synapses
+## Create Memorys
 xMemory = np.random.vonmises(0,k_prior,(N,M))
 ## Create Synapses
 W = np.zeros((N,N))
@@ -96,7 +96,7 @@ events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
 # events[i] = 0 if and only if x[i] == 2*pi*t/T mod 2pi
 
 # Integration
-tf = T_theta
+tf = T_theta*2
 kwargs = {
     'N': N,
     'W': W,
