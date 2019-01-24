@@ -1,6 +1,6 @@
 #%%
 import numpy as np
-from numpy import pi,exp,sin,cos
+from numpy import pi,exp,sin,cos,sqrt
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
@@ -42,7 +42,7 @@ class storedNoise:
         xNoise_d[0] = np.random.vonmises(0,k_cue0,N)
         for tt in range(nt-1):
             v = v_noise*dt/T_theta
-            cumulative = np.random.normal(0,v,N)
+            cumulative = np.random.normal(0,sqrt(v),N)
             xNoise_d[tt+1] = xNoise_d[tt] + cumulative
         self._t = t
         self._xNoise_d = xNoise_d
