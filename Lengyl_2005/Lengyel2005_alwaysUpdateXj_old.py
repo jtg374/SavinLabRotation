@@ -7,7 +7,7 @@ from scipy.integrate import solve_ivp
 ## Define STDP and Phase coupling function
 A_STDP = 0.03
 s_STDP = 4
-T_theta = pi*2 # theta oscillation period in ms
+T_theta = 2 # theta oscillation period in ms
 dp = lambda dt: dt*2*pi/T_theta # dt = xi - xj
 omega = lambda dx: A_STDP * exp(s_STDP*cos(dx)) * sin(dx)
 # derivative in respect to xi
@@ -19,11 +19,11 @@ du=np.pi/120
 u = np.arange(-np.pi,np.pi,du) # a bunch of testing phase 
 uu=u.copy();uu[u<=0]+=2*np.pi # wrap into range (0,2pi]
 PRC = np.zeros_like(u)
-k_prior = 0.6/20 # confidence of prior (x=0)
+k_prior = 0.5 # confidence of prior (x=0)
 for w in [0.01,0.025, 0.05, 0.075]:
         for i,xj in enumerate(uu):
                 x=0 # postsynaptic start from 0 phase
-                t=xj*T_theta/pi/2 # phase response integrate from presynaptic fire
+                t=0 #xj*T_theta/pi/2 # phase response integrate from presynaptic fire
                 dt = 0.001*T_theta
                 while (t+dt-x*T_theta/pi/2)<T_theta: # fire when x == t*2pi/T mod 2pi
                         dx = dt*(-k_prior*np.sin(x)+w*domega(x-xj))
