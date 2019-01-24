@@ -3,7 +3,8 @@ import numpy as np
 from numpy import pi,exp,sin,cos
 import matplotlib.pyplot as plt
 from scipy.integrate import solve_ivp
-#%%
+from scipy.interpolate import interp1d
+#%% Define STDP and Phase coupling function
 ## Define STDP and Phase coupling function
 A_STDP = 0.03
 s_STDP = 4
@@ -13,12 +14,13 @@ omega = lambda dx: A_STDP * exp(s_STDP*cos(dx)) * sin(dx)
 # derivative in respect to xi
 domega = lambda dx: 2*pi/T_theta*A_STDP*exp(s_STDP*cos(dx)) * (cos(dx) - s_STDP * sin(dx)**2 )
 
-#%%
+#%% Create Memorys
 ## Create Memorys
 N = 200 # number of neurons
 M = 10 # number of memorys
 k_prior = 0.5 # concentration parameter for prior distribution
-k_cue = 10 # for cue distribution
+k_cue0 = 16 # for initial cue distribution
+v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
 xMemory = np.random.vonmises(0,k_prior,(N,M))
 ## Create Synapses
 W = np.zeros((N,N))
@@ -29,14 +31,47 @@ for i in range(N):
             W[j,i] += omega(xMemory[j,k]-xMemory[i,k])
 sigma2_W = np.var(W.flatten())
 
+#%% Create noise
+## Create noise
+class storedNoise:
+    def __init__(self,dt,tf,k_cue0,v_noise):
+        t = np.arange(0,tf,dt)
+        nt = len(t)
+        # first generate discrete noise
+        xNoise_d = np.empty((nt,N))
+        xNoise_d[0] = np.random.vonmises(0,k_cue0,N)
+        for tt in range(nt-1):
+            v = v_noise*dt/T_theta
+            cumulative = np.random.normal(0,v,N)
+            xNoise_d[tt+1] = xNoise_d[tt] + cumulative
+        self._t = t
+        self._xNoise_d = xNoise_d
+        # then interpolate with cubic spline
+        self._xNoise = [interp1d(t,xNoise_d[:,ii],'cubic') 
+                                for ii in range(N)]
+    def __call__(self,t):
+        '''
+        storedNoise(t): xNoise at time t
+        '''
+        xNoise = np.empty(N)
+        for ii in range(N):
+            xNoise[ii] = self._xNoise[ii](t)
+        return xNoise
+
+    
+
+
 #%%
 ## Define ODE
-def mainode(t,x,N,W,sigma2_W,x_tilde,k_prior,k_cue):
+def mainode(t,x,N,W,sigma2_W,xTarget,xNoise,k_prior,k_cue0,v_noise,T_theta):
     # Additional parameters
     # N: #neurons
     # W: Synpatic weight W[i,j] is from j to i
     # sigma2_W: variance of W
     # x_tilde is the recall cue
+    # Recalculate K_cue
+    k_cue = 1/( 1/k_cue0 + v_noise*t/T_theta )
+    x_tilde = xTarget + xNoise(t)
     # Calculate phase response H
     H = np.zeros(N)
     for i in range(N):
@@ -53,9 +88,8 @@ def mainode(t,x,N,W,sigma2_W,x_tilde,k_prior,k_cue):
 # Initial Condintion
 k = 0 # memory to recall
 xTarget = xMemory[:,k]
-x0 = xTarget.copy() # np.random.vonmises(0,k_prior,N)
-xNoise = np.random.vonmises(0,k_cue,N)
-x_tilde = xTarget + xNoise
+xNoise = storedNoise(1,160*T_theta,k_cue0,v_noise)
+x0 = xNoise(0) # np.random.vonmises(0,k_prior,N)
 
 # Define firing events
 events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
@@ -67,9 +101,12 @@ kwargs = {
     'N': N,
     'W': W,
     'k_prior': k_prior,
-    'k_cue': k_cue,
+    'k_cue0': k_cue0,
+    'v_noise': v_noise,
     'sigma2_W': sigma2_W,
-    'x_tilde': x_tilde
+    'xNoise': xNoise,
+    'xTarget': xTarget,
+    'T_theta': T_theta
 }
 sol = solve_ivp(lambda t,y: mainode(t,y,**kwargs),(0,tf),x0,events=events)
 t   = sol.t; tNow = sol.t[-1]
