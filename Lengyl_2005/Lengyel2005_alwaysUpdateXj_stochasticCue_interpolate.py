@@ -121,10 +121,10 @@ print(sol.message)
 from matplotlib.cm import get_cmap
 hsv = get_cmap('hsv')
 ax = plt.subplot(111,projection='polar')
+ax.plot(2*pi*t/T_theta,t,color='white',alpha=0.9)
 for xi_t,target in zip(x_t,xTarget):
     color = hsv((target/pi/2)%1)
     ax.plot(xi_t,t,color=color,alpha=0.2)
-ax.plot(2*pi*t/T_theta,t,color='white')
 ax.set_ylabel('time')
 
 #%%
@@ -162,5 +162,13 @@ h=plt.hist(errors)
 plt.xlim((-pi,pi))
 plt.xlabel('error')
 plt.ylabel('counts')
+
+#%%
+tt = 500
+xNt = xNoise(tt)
+print(np.std(xNt))
+print(np.var(xNt))
+R = np.mean(exp(1j*xNt))
+print(1-np.real(R))
 
 #%%
