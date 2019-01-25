@@ -22,19 +22,11 @@ v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/
 #%% Create noise
 ## Create noise
 class storedNoise:
-    def __init__(self,dt,tf,k_cue0,v_noise):
+    def __init__(self,dt,tf,xNoise_d):
         t = np.arange(0,tf,dt)
-        nt = len(t)
-        # first generate discrete noise
-        xNoise_d = np.empty((nt,N))
-        xNoise_d[0] = np.random.vonmises(0,k_cue0,N)
-        for tt in range(nt-1):
-            v = v_noise*dt/T_theta
-            cumulative = np.random.normal(0,sqrt(v),N)
-            xNoise_d[tt+1] = xNoise_d[tt] + cumulative
         self._t = t
         self._xNoise_d = xNoise_d
-        # then interpolate with cubic spline
+        # interpolate with cubic spline
         self._xNoise = [interp1d(t,xNoise_d[:,ii],'cubic') 
                                 for ii in range(N)]
     def __call__(self,t):
@@ -50,6 +42,8 @@ class storedNoise:
 # Main loop
 for iIter in range(nIter):
     print('Iternation #',iIter+1)
+    inputFilename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d.npz'%(iIter)
+    loaded = np.load(inputFilename)
     #%%
     ## Define STDP and Phase coupling function
     T_theta = T_theta # theta oscillation period in ms
@@ -64,14 +58,9 @@ for iIter in range(nIter):
     ## Create Memorys
     N = N # number of neurons
     M = M # number of memorys
-    xMemory = np.random.vonmises(0,k_prior,(N,M))
+    xMemory = loaded['xMemory']
     ## Create Synapses
-    W = np.zeros((N,N))
-    for i in range(N):
-        for j in range(i): # 0<=j<i
-            for k in range(M):
-                W[i,j] += omega(xMemory[i,k]-xMemory[j,k])
-                W[j,i] += omega(xMemory[j,k]-xMemory[i,k])
+    W = loaded['W']
     sigma2_W = np.var(W.flatten())
 
     #%%
@@ -83,7 +72,7 @@ for iIter in range(nIter):
         # sigma2_W: variance of W
         # x_tilde is the recall cue
         # Recalculate K_cue
-        k_cue = 1/( 1/k_cue0 + v_noise*t/T_theta )
+        # k_cue = 1/( 1/k_cue0 + v_noise*t/T_theta )
         x_tilde = xTarget + xNoise(t)
         # Calculate phase response H
         H = np.zeros(N)
@@ -93,7 +82,7 @@ for iIter in range(nIter):
         #
         tau = T_theta*0.08 # = 10
         dx_prior    = -k_prior * sin(x)
-        dx_external = -k_cue * sin(x-x_tilde)
+        dx_external = -k_cue0 * sin(x-x_tilde)
         dx_synapse  = H/sigma2_W
         dx = dx_prior + dx_external + dx_synapse
         return dx/tau
@@ -101,7 +90,6 @@ for iIter in range(nIter):
     ## Prepare space for saving results
     t_eval = np.arange(0,tf,dt)
     len_t = len(t_eval)
-    cues = np.empty((N,len_t+1,M))
     recalled = np.empty((N,len_t,M))
     t_fireList = []
     #%%
@@ -110,8 +98,9 @@ for iIter in range(nIter):
         print('memory #',k+1,'/',M)
         # Initial Condintion
         xTarget = xMemory[:,k]
-        xNoise = storedNoise(dt,tf+dt,k_cue0,v_noise)
-        x0 = xNoise(0) # start from initial cue
+        xNoise_d = loaded['xCue'] # due to previous mistake... naming mess
+        xNoise = storedNoise(dt,tf+dt,xNoise)
+        x0 = xNoise(0) + xTarget
 
         # Define firing events
         events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
@@ -139,16 +128,15 @@ for iIter in range(nIter):
 
         #%% 
         # save result for current recall
-        cues[:,:,k]= xNoise._xNoise_d.T
         recalled[:,:,k] = x_t
         t_fireList += [t_fire]
     #%%
     # save all into file
     now = datetime.now()
-    filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d.npz'%(iIter)
-    np.savez(filename,xMemory=xMemory,W=W,
-        xRecalled=recalled,xCue=cues,
+    outputFilename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_noDynamicWeight_iter%02d.npz'%(iIter)
+    np.savez(outputFilename,
+        xRecalled=recalled,
         time=now,t_eval=t_eval)
-    with open(filename+'_firing.data','wb') as f:
+    with open(outputFilename+'_firing.data','wb') as f:
         pickle.dump(t_fireList,f)
 
