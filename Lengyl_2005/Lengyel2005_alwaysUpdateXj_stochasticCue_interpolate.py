@@ -90,7 +90,7 @@ def mainode(t,x,N,W,sigma2_W,xTarget,xNoise,k_prior,k_cue0,v_noise,T_theta):
 k = 0 # memory to recall
 xTarget = xMemory[:,k]
 xNoise = storedNoise(1,160*T_theta,k_cue0,v_noise)
-x0 = xNoise(0) # np.random.vonmises(0,k_prior,N)
+x0 = xNoise(0)+xTarget
 
 # Define firing events
 events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
