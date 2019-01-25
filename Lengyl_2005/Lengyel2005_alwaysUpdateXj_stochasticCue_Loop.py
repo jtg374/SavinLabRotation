@@ -101,7 +101,7 @@ for iIter in range(nIter):
     ## Prepare space for saving results
     t_eval = np.arange(0,tf,dt)
     len_t = len(t_eval)
-    cues = np.empty((N,len_t,M))
+    cues = np.empty((N,len_t+1,M))
     recalled = np.empty((N,len_t,M))
     t_fireList = []
     #%%
@@ -110,7 +110,7 @@ for iIter in range(nIter):
         print('memory #',k+1,'/',M)
         # Initial Condintion
         xTarget = xMemory[:,k]
-        xNoise = storedNoise(dt,tf,k_cue0,v_noise)
+        xNoise = storedNoise(dt,tf+dt,k_cue0,v_noise)
         x0 = xNoise(0) # start from initial cue
 
         # Define firing events
@@ -139,13 +139,13 @@ for iIter in range(nIter):
 
         #%% 
         # save result for current recall
-        cues[:,:,k]= xNoise._xNoise_d
+        cues[:,:,k]= xNoise._xNoise_d.T
         recalled[:,:,k] = x_t
         t_fireList += [t_fire]
     #%%
     # save all into file
     now = datetime.now()
-    filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d'%(iIter)
+    filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d.npz'%(iIter)
     np.savez(filename,xMemory=xMemory,W=W,
         xRecalled=recalled,xCue=cues,
         time=now,t_eval=t_eval)
