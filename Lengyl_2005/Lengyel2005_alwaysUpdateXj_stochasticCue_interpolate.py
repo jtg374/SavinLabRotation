@@ -18,7 +18,7 @@ N = 200 # number of neurons
 M = 10 # number of memorys
 k_prior = 0.5 # concentration parameter for prior distribution
 k_cue0 = 16 # for initial cue distribution
-v_noise = 1/2 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
+v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
 #%% Create Memorys and synapses
 ## Create Memorys
 xMemory = np.random.vonmises(0,k_prior,(N,M))
@@ -78,11 +78,12 @@ def mainode(t,x,N,W,sigma2_W,xTarget,xNoise,k_prior,k_cue0,v_noise,T_theta):
         dxi = x[i] - x # dxi[j] = x[i] - x[j]
         H[i] = np.dot( W[i,:], domega(dxi) ) # H[i] = \sum_j W_{ij} * domega(xi-xj)
     #
+    tau = T_theta*0.08 # = 10
     dx_prior    = -k_prior * sin(x)
     dx_external = -k_cue * sin(x-x_tilde)
     dx_synapse  = H/sigma2_W
     dx = dx_prior + dx_external + dx_synapse
-    return dx
+    return dx/tau
 #%%
 ## Solve ODE
 # Initial Condintion
@@ -96,7 +97,7 @@ events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
 # events[i] = 0 if and only if x[i] == 2*pi*t/T mod 2pi
 
 # Integration
-tf = T_theta*2
+tf = T_theta*10
 kwargs = {
     'N': N,
     'W': W,
