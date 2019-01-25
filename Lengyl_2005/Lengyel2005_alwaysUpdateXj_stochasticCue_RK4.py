@@ -110,7 +110,7 @@ kwargs = {
 sol = solver_RK4(lambda t,y: mainode(t,y,**kwargs),(0,tf),x0,t_step=dt)
 #%%
 t   = sol.t; tNow = sol.t[-1]
-x_t = sol.y.T; xNow = sol.y[:,-1]
+x_t = sol.y; xNow = sol.y[:,-1]
 # print(sol.message)
 #%%
 plt.plot(t,x_t[0,:])
