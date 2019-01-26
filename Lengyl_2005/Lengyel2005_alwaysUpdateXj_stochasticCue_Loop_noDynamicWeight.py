@@ -27,7 +27,7 @@ class storedNoise:
         self._t = t
         self._xNoise_d = xNoise_d
         # interpolate with cubic spline
-        self._xNoise = [interp1d(t,xNoise_d[:,ii],'cubic') 
+        self._xNoise = [interp1d(t,xNoise_d[ii,:],'cubic') 
                                 for ii in range(N)]
     def __call__(self,t):
         '''
@@ -98,8 +98,8 @@ for iIter in range(nIter):
         print('memory #',k+1,'/',M)
         # Initial Condintion
         xTarget = xMemory[:,k]
-        xNoise_d = loaded['xCue'] # due to previous mistake... naming mess
-        xNoise = storedNoise(dt,tf+dt,xNoise)
+        xNoise_d = loaded['xCue'][:,:,k] # due to previous mistake... naming mess
+        xNoise = storedNoise(dt,tf+dt,xNoise_d)
         x0 = xNoise(0) + xTarget
 
         # Define firing events
