@@ -22,20 +22,12 @@ v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/
 #%% Create noise
 ## Create noise
 class storedNoise:
-    def __init__(self,dt,tf,k_cue0,v_noise):
+    def __init__(self,dt,tf,xNoise_d):
         t = np.arange(0,tf,dt)
-        nt = len(t)
-        # first generate discrete noise
-        xNoise_d = np.empty((nt,N))
-        xNoise_d[0] = np.random.vonmises(0,k_cue0,N)
-        for tt in range(nt-1):
-            v = v_noise*dt/T_theta
-            cumulative = np.random.normal(0,sqrt(v),N)
-            xNoise_d[tt+1] = xNoise_d[tt] + cumulative
         self._t = t
         self._xNoise_d = xNoise_d
-        # then interpolate with cubic spline
-        self._xNoise = [interp1d(t,xNoise_d[:,ii],'cubic') 
+        # interpolate with cubic spline
+        self._xNoise = [interp1d(t,xNoise_d[ii,:],'cubic') 
                                 for ii in range(N)]
     def __call__(self,t):
         '''
@@ -50,6 +42,8 @@ class storedNoise:
 # Main loop
 for iIter in range(nIter):
     print('Iternation #',iIter+1)
+    inputFilename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d.npz'%(iIter)
+    loaded = np.load(inputFilename)
     #%%
     ## Define STDP and Phase coupling function
     T_theta = T_theta # theta oscillation period in ms
@@ -64,14 +58,9 @@ for iIter in range(nIter):
     ## Create Memorys
     N = N # number of neurons
     M = M # number of memorys
-    xMemory = np.random.vonmises(0,k_prior,(N,M))
+    xMemory = loaded['xMemory']
     ## Create Synapses
-    W = np.zeros((N,N))
-    for i in range(N):
-        for j in range(i): # 0<=j<i
-            for k in range(M):
-                W[i,j] += omega(xMemory[i,k]-xMemory[j,k])
-                W[j,i] += omega(xMemory[j,k]-xMemory[i,k])
+    W = loaded['W']
     sigma2_W = np.var(W.flatten())
 
     #%%
@@ -110,7 +99,8 @@ for iIter in range(nIter):
         print('memory #',k+1,'/',M)
         # Initial Condintion
         xTarget = xMemory[:,k]
-        xNoise = storedNoise(dt,tf+dt,k_cue0,v_noise)
+        xNoise_d = loaded['xCue'][:,:,k] # due to previous mistake... naming mess
+        xNoise = storedNoise(dt,tf+dt,xNoise_d)
         x0 = xNoise(0)+xTarget
 
         # Define firing events
@@ -139,13 +129,13 @@ for iIter in range(nIter):
 
         #%% 
         # save result for current recall
-        noise[:,:,k]= xNoise._xNoise_d.T
+        noise[:,:,k]= xNoise._xNoise_d
         recalled[:,:,k] = x_t
         t_fireList += [t_fire]
     #%%
     # save all into file
     now = datetime.now()
-    filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d.npz'%(iIter)
+    filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_withDynamicWeight_iter%02d.npz'%(iIter)
     np.savez(filename,xMemory=xMemory,W=W,
         xRecalled=recalled,xNoise=noise,
         time=now,t_eval=t_eval)
