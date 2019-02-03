@@ -2,7 +2,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 #%%
-plt.style.use('ggplot')
+plt.style.use('default')
+plt.style.use('seaborn-talk')
 
 #%%
 #%%
@@ -26,7 +27,7 @@ memorys = np.empty((nIter,N,M))
 cues = np.empty((nIter,N,M))
 results = np.empty((nIter,N,M))
 for iIter in range(nIter):
-    filename = 'Lengyel2005_alwaysUpdateXj_Loop/'+'Lengyel2005_alwaysUpdateXj_iter%02d.npz'%(iIter)
+    filename = 'Data/Lengyel2005_alwaysUpdateXj_Loop/'+'Lengyel2005_alwaysUpdateXj_iter%02d.npz'%(iIter)
     D = np.load(filename)
     # D.files
     memorys[iIter] = D['xMemory']
@@ -56,7 +57,10 @@ for mode in modes:
 h = {}
 for mode in modes:
     h[mode] = plt.hist(dx[mode],100,(-np.pi,np.pi),density=True,histtype='step',label=mode)[0]
-    plt.legend()
+plt.xlabel('error')
+plt.ylabel('count')
+plt.legend()
+
 #%%
 ax = plt.subplot(111,projection='polar')
 for mode in modes:
