@@ -70,7 +70,8 @@ xError_FF = np.mod(xError_FF+pi,pi*2) - pi
 
 #%% save
 filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/ErrorCombined.npz'
-np.savez(filename,xError=xError,xError_FF=xError_FF,xError_n=xError_n)
+xError_all = np.array([xError,xError_n,xError_FF])
+np.savez(filename,xError=xError,xError_FF=xError_FF,xError_n=xError_n,xError_all=xError_all)
 
 #%% load
 filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/ErrorCombined.npz'
@@ -99,7 +100,7 @@ plt.style.use('seaborn')
 plt.style.use('seaborn-talk')
 
 #%%
-tt = int(1/dt)
+tt = int(1200/dt)
 hist = [None for _ in range(3)]
 fig1,ax1 = plt.subplots()
 for m in range(3):

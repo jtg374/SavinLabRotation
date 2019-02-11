@@ -108,7 +108,7 @@ events = [lambda t,x,j=j: sin((x[j] - 2*pi*t/T_theta)/2) for j in range(N)]
 # events[i] = 0 if and only if x[i] == 2*pi*t/T mod 2pi
 
 # Integration
-tf = T_theta*80
+tf = T_theta*10
 t_eval = np.arange(0,tf,1)
 kwargs = {
     'N': N,
