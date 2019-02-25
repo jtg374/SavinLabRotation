@@ -9,19 +9,16 @@ gFB = 50.
 p = 0.2
 #%%
 # connection
-C = np.random.uniform(0,1,(N1,N2))<p
+C = np.random.uniform(0,1,(N2,N1))<p
+N_exc_s = np.sum(C,0)
+N_exc_r = np.sum(C,1)
 #%%
 # Feedforward weight
-wFF = np.zeros_like(C,dtype=float)
-for i in range(N1):
-    wFF[i] = gFF*C[i] / np.sum(C[i])
-wFF = wFF - gFF/N2
-#%%
+k1 = 2100
+wFF = -k1/(N2) + k1*C/N_exc_s[None,:] 
 # and Feedback Weight
-wFB = np.zeros_like(C.T,dtype=float)
-for i in range(N2):
-    wFB[i] = C.T[i] / np.sum(C.T[i])
-wFB = wFB*gFB - gFB/N1
+k2 = 200
+wFB = -k2/N1 + k2*C.T/N_exc_r[None,:]
 #%%
 W = wFF@wFB
 
@@ -36,5 +33,8 @@ print(s)
 import matplotlib.pyplot as plt
 plt.matshow(W)
 plt.colorbar()
+
+#%%
+np.sum(wFB,0)
 
 #%%
