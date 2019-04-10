@@ -80,7 +80,7 @@ for iIter in range(nIter):
             dxi = x[i] - x # dxi[j] = x[i] - x[j]
             H[i] = np.dot( W[i,:], domega(dxi) ) # H[i] = \sum_j W_{ij} * domega(xi-xj)
         #
-        tau = T_theta*0.08 # = 10
+        tau = T_theta*0.8 # = 100
         dx_prior    = -k_prior * sin(x)
         dx_external = -k_cue * sin(x-x_tilde)
         dx_synapse  = H/sigma2_W
