@@ -6,7 +6,13 @@ from scipy.integrate import solve_ivp
 from datetime import datetime
 import pickle
 from scipy.interpolate import interp1d
-
+#%% keep a copy of the script
+dirname = 'Lengyel2005_alwaysUpdateXj_stochasticCue_diffuse/'
+from os import makedirs,path
+from shutil import copy
+if not path.exists('Data/'+dirname):
+    makedirs('Data/'+dirname)
+copy('./Lengyel2005_alwaysUpdateXj_stochasticCue_Loop_varyDiffuse.py','Data/'+dirname)
 #%%
 # Global Experimental parameters
 nIter = 10
@@ -145,7 +151,7 @@ for iIter in range(nIter):
     #%%
     # save all into file
     now = datetime.now()
-    filename = 'Data/Lengyel2005_alwaysUpdateXj_stochasticCue/Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d.npz'%(iIter)
+    filename = 'Data/'+dirname+'Lengyel2005_alwaysUpdateXj_stochasticCue_iter%02d.npz'%(iIter)
     np.savez(filename,xMemory=xMemory,W=W,
         xRecalled=recalled,xNoise=noise,
         time=now,t_eval=t_eval)
