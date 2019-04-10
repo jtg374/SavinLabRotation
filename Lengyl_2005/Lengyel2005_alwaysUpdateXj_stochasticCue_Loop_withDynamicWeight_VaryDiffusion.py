@@ -13,11 +13,11 @@ nIter = 10
 N = 200 # number of neurons
 M = 10 # number of memorys, every trace will be attemped to recall
 T_theta = 125 # theta oscillation period in ms
-tf = 10*T_theta # integration time for each recall
+tf = 5*T_theta # integration time for each recall
 dt = 1 # timestep for saving results
 k_prior = 0.5 # concentration parameter for prior distribution
 k_cue0 = 16 # for initial cue distribution
-v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
+v_noise = 1/2 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
 
 #%% Create noise
 ## Create noise
