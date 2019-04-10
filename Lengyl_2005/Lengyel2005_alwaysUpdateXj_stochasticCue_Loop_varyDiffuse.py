@@ -17,7 +17,7 @@ tf = 10*T_theta # integration time for each recall
 dt = 1 # timestep for saving results
 k_prior = 0.5 # concentration parameter for prior distribution
 k_cue0 = 16 # for initial cue distribution
-v_noise = 1/8 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
+v_noise = 1/2 # for cue noise accumulation, k_cue(t) = 1/( 1/k_cue0 + v_noise*t/T_theta )
 
 #%% Create noise
 ## Create noise
@@ -91,7 +91,7 @@ for iIter in range(nIter):
             dxi = x[i] - x # dxi[j] = x[i] - x[j]
             H[i] = np.dot( W[i,:], domega(dxi) ) # H[i] = \sum_j W_{ij} * domega(xi-xj)
         #
-        tau = T_theta*0.08 # = 10
+        tau = T_theta*0.8 # = 100
         dx_prior    = -k_prior * sin(x)
         dx_external = -k_cue * sin(x-x_tilde)
         dx_synapse  = H/sigma2_W
